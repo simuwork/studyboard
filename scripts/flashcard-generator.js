@@ -89,10 +89,9 @@ class FlashcardGenerator {
           </form>
 
           <div id="flashcards-output" class="flashcard-output hidden">
-            <h3>Flashcard set ready</h3>
+            <h3>Preview Your Flashcards</h3>
             <div class="flashcard-output__actions" id="flashcards-output-actions"></div>
-            <div class="flashcard-output__code" id="flashcards-json-block"></div>
-            <div class="flashcard-output__code" id="flashcards-component-block"></div>
+            <div class="flashcard-preview-container" id="flashcards-preview-container"></div>
             <div class="flashcard-output__warnings" id="flashcards-warnings"></div>
           </div>
         </div>
@@ -115,8 +114,7 @@ class FlashcardGenerator {
     this.elements.cancelBtn = modal.querySelector('[data-cancel]');
     this.elements.output = modal.querySelector('#flashcards-output');
     this.elements.outputActions = modal.querySelector('#flashcards-output-actions');
-    this.elements.jsonBlock = modal.querySelector('#flashcards-json-block');
-    this.elements.componentBlock = modal.querySelector('#flashcards-component-block');
+    this.elements.previewContainer = modal.querySelector('#flashcards-preview-container');
     this.elements.warnings = modal.querySelector('#flashcards-warnings');
     this.elements.refreshSelection = modal.querySelector('#flashcards-refresh-list');
 
@@ -232,8 +230,7 @@ class FlashcardGenerator {
     this.lastOutput = null;
     this.elements.output.classList.add('hidden');
     this.elements.outputActions.innerHTML = '';
-    this.elements.jsonBlock.innerHTML = '';
-    this.elements.componentBlock.innerHTML = '';
+    this.elements.previewContainer.innerHTML = '';
     this.elements.warnings.innerHTML = '';
   }
 
@@ -870,21 +867,24 @@ class FlashcardGenerator {
     };
 
     this.elements.output.classList.remove('hidden');
-    this.renderCopyActions();
-    this.renderCodeBlock({ target: this.elements.jsonBlock, title: 'Cards JSON', code: json });
-    this.renderCodeBlock({ target: this.elements.componentBlock, title: 'React component', code: component, language: 'tsx' });
+    this.renderSaveActions();
+    this.renderCardPreviews(cards);
     this.renderWarnings(warnings);
   }
 
-  renderCopyActions() {
+  renderSaveActions() {
     if (!this.elements.outputActions) return;
     this.elements.outputActions.innerHTML = `
+      <button type="button" class="flashcard-btn primary" id="flashcards-save-btn">💾 Save Flashcards</button>
       <button type="button" class="flashcard-btn" id="flashcards-copy-json">Copy JSON</button>
       <button type="button" class="flashcard-btn" id="flashcards-copy-component">Copy React Component</button>
     `;
 
+    const saveBtn = this.elements.modal.querySelector('#flashcards-save-btn');
     const copyJsonBtn = this.elements.modal.querySelector('#flashcards-copy-json');
     const copyComponentBtn = this.elements.modal.querySelector('#flashcards-copy-component');
+
+    saveBtn?.addEventListener('click', () => this.saveFlashcards());
 
     copyJsonBtn?.addEventListener('click', () => {
       if (this.lastOutput?.json) {
@@ -897,6 +897,71 @@ class FlashcardGenerator {
         this.copyToClipboard(this.lastOutput.component, 'React component copied to clipboard.');
       }
     });
+  }
+
+  renderCardPreviews(cards) {
+    if (!this.elements.previewContainer) return;
+    
+    const cardsHtml = cards.map((card, index) => {
+      const answers = Array.isArray(card.a) ? card.a : [card.a];
+      const answersHtml = answers.map((answer, i) => `
+        <div class="flashcard-preview__answer">
+          <div class="flashcard-preview__answer-label">Answer ${i + 1}${i === 0 ? ' (Concise)' : i === answers.length - 1 ? ' (Detailed)' : ' (Medium)'}</div>
+          <div class="flashcard-preview__answer-text">${this.escapeHtml(answer)}</div>
+        </div>
+      `).join('');
+
+      return `
+        <div class="flashcard-preview-card">
+          <div class="flashcard-preview__header">
+            <span class="flashcard-preview__number">Card ${index + 1}</span>
+            <span class="flashcard-preview__category">${this.escapeHtml(card.category || 'General')}</span>
+          </div>
+          <div class="flashcard-preview__question">
+            <div class="flashcard-preview__question-label">Question</div>
+            <div class="flashcard-preview__question-text">${this.escapeHtml(card.q)}</div>
+          </div>
+          <div class="flashcard-preview__answers">
+            ${answersHtml}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    this.elements.previewContainer.innerHTML = cardsHtml;
+  }
+
+  async saveFlashcards() {
+    if (!this.lastOutput?.cards) {
+      this.updateStatus('No flashcards to save.', 'error');
+      return;
+    }
+
+    if (!chrome?.storage?.local) {
+      this.updateStatus('Chrome storage not available.', 'error');
+      return;
+    }
+
+    try {
+      const result = await chrome.storage.local.get(['savedFlashcards']);
+      const savedFlashcards = result.savedFlashcards || [];
+      
+      const newSet = {
+        id: `set-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: Date.now(),
+        cards: this.lastOutput.cards,
+        count: this.lastOutput.cards.length
+      };
+
+      savedFlashcards.push(newSet);
+      
+      await chrome.storage.local.set({ savedFlashcards });
+      
+      this.updateStatus(`Saved ${newSet.count} flashcards successfully! You can now view them from the main panel.`, 'success');
+    } catch (error) {
+      console.error('Error saving flashcards:', error);
+      this.updateStatus(`Error saving flashcards: ${error.message}`, 'error');
+    }
   }
 
   renderCodeBlock({ target, title, code, language }) {

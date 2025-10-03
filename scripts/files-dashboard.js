@@ -98,6 +98,11 @@ class FilesDashboard {
         event.preventDefault();
         this.openFlashcardGenerator();
       }
+
+      if (target.id === 'view-saved-flashcards') {
+        event.preventDefault();
+        this.openFlashcardViewer();
+      }
     });
   }
 
@@ -355,6 +360,25 @@ class FilesDashboard {
     } catch (error) {
       console.error('Unable to initialize flashcard generator:', error);
       return null;
+    }
+  }
+
+  async openFlashcardViewer() {
+    try {
+      const result = await chrome.storage.local.get(['savedFlashcards']);
+      const savedFlashcards = result.savedFlashcards || [];
+
+      if (savedFlashcards.length === 0) {
+        alert?.('No saved flashcards yet. Generate some flashcards first!');
+        return;
+      }
+
+      // Open the flashcard viewer page
+      const viewerUrl = chrome.runtime.getURL('viewer.html');
+      window.open(viewerUrl, '_blank');
+    } catch (error) {
+      console.error('Error opening flashcard viewer:', error);
+      alert?.('Error loading saved flashcards.');
     }
   }
 
