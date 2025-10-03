@@ -615,7 +615,18 @@ class FlashcardGenerator {
 
     const systemPrompt = 'You are an expert machine learning tutor that crafts flashcards. Always respond with valid JSON arrays only.';
 
-    let userPrompt = `You are given course materials from Canvas. Using the provided text excerpts${fileContexts.length ? ' and attached documents' : ''}, write ${count} high-quality study flashcards for a machine learning midterm. Follow the structure strictly:\n\n- Return a JSON array only.\n- Each flashcard must have the fields: "category" (string), "q" (string question), "a" (array of exactly three answers).\n- The answers array should progress from concise to increasingly detailed explanations.\n- Keep each answer under 120 words.\n- Prefer categories sourced from the material. If unsure, choose a short descriptive category.\n- Cover different concepts, avoid duplicates.\n${noteInstruction}`;
+    let userPrompt = `You are given course materials from Canvas. Using the provided text excerpts${fileContexts.length ? ' and attached documents' : ''}, write ${count} high-quality study flashcards for a machine learning midterm. Follow the structure strictly:
+
+- Return a JSON array only.
+- Each flashcard must have the fields: "category" (string), "q" (string question), "a" (array of exactly three answers).
+- The answers array MUST contain three progressive explanations of the SAME answer to the question:
+  - a[0]: A concise, direct answer (1-2 sentences, ~20-30 words)
+  - a[1]: A medium explanation that adds context and key details (~50-70 words)
+  - a[2]: A comprehensive explanation with examples, reasoning, and deeper insights (~100-120 words)
+- All three answers should explain the SAME concept but with increasing depth - not different parts or aspects.
+- Prefer categories sourced from the material. If unsure, choose a short descriptive category.
+- Cover different concepts, avoid duplicates.
+${noteInstruction}`;
 
     if (textBlocks) {
       userPrompt += `\n\n${textBlocks}`;
