@@ -876,27 +876,14 @@ class FlashcardGenerator {
     if (!this.elements.outputActions) return;
     this.elements.outputActions.innerHTML = `
       <button type="button" class="flashcard-btn primary" id="flashcards-save-btn">💾 Save Flashcards</button>
-      <button type="button" class="flashcard-btn" id="flashcards-copy-json">Copy JSON</button>
-      <button type="button" class="flashcard-btn" id="flashcards-copy-component">Copy React Component</button>
+      <button type="button" class="flashcard-btn" id="flashcards-retry-btn">🔄 Retry Generation</button>
     `;
 
     const saveBtn = this.elements.modal.querySelector('#flashcards-save-btn');
-    const copyJsonBtn = this.elements.modal.querySelector('#flashcards-copy-json');
-    const copyComponentBtn = this.elements.modal.querySelector('#flashcards-copy-component');
+    const retryBtn = this.elements.modal.querySelector('#flashcards-retry-btn');
 
-    saveBtn?.addEventListener('click', () => this.saveFlashcards());
-
-    copyJsonBtn?.addEventListener('click', () => {
-      if (this.lastOutput?.json) {
-        this.copyToClipboard(this.lastOutput.json, 'Flashcard JSON copied to clipboard.');
-      }
-    });
-
-    copyComponentBtn?.addEventListener('click', () => {
-      if (this.lastOutput?.component) {
-        this.copyToClipboard(this.lastOutput.component, 'React component copied to clipboard.');
-      }
-    });
+    saveBtn?.addEventListener('click', () => this.showSaveDialog());
+    retryBtn?.addEventListener('click', () => this.retryGeneration());
   }
 
   renderCardPreviews(cards) {
@@ -931,7 +918,56 @@ class FlashcardGenerator {
     this.elements.previewContainer.innerHTML = cardsHtml;
   }
 
-  async saveFlashcards() {
+  showSaveDialog() {
+    if (!this.lastOutput?.cards) {
+      this.updateStatus('No flashcards to save.', 'error');
+      return;
+    }
+
+    const defaultName = `Flashcard Set - ${new Date().toLocaleDateString()}`;
+    const overlay = document.createElement('div');
+    overlay.className = 'flashcard-save-dialog-overlay';
+    overlay.innerHTML = `
+      <div class="flashcard-save-dialog">
+        <h3>Save Flashcard Set</h3>
+        <p>Give your flashcard set a name (or use the default)</p>
+        <input type="text" id="flashcard-set-name" class="flashcard-input" value="${this.escapeHtml(defaultName)}" placeholder="Enter set name..." />
+        <div class="flashcard-save-dialog-actions">
+          <button type="button" class="flashcard-btn" data-cancel-save>Cancel</button>
+          <button type="button" class="flashcard-btn primary" data-confirm-save>Save</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const input = overlay.querySelector('#flashcard-set-name');
+    const cancelBtn = overlay.querySelector('[data-cancel-save]');
+    const confirmBtn = overlay.querySelector('[data-confirm-save]');
+
+    const closeDialog = () => {
+      overlay.remove();
+    };
+
+    cancelBtn.addEventListener('click', closeDialog);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeDialog();
+    });
+
+    confirmBtn.addEventListener('click', async () => {
+      const name = input.value.trim() || defaultName;
+      closeDialog();
+      await this.saveFlashcards(name);
+    });
+
+    requestAnimationFrame(() => {
+      overlay.classList.add('visible');
+      input.focus();
+      input.select();
+    });
+  }
+
+  async saveFlashcards(name) {
     if (!this.lastOutput?.cards) {
       this.updateStatus('No flashcards to save.', 'error');
       return;
@@ -948,6 +984,7 @@ class FlashcardGenerator {
       
       const newSet = {
         id: `set-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: name,
         timestamp: Date.now(),
         cards: this.lastOutput.cards,
         count: this.lastOutput.cards.length
@@ -957,11 +994,17 @@ class FlashcardGenerator {
       
       await chrome.storage.local.set({ savedFlashcards });
       
-      this.updateStatus(`Saved ${newSet.count} flashcards successfully! You can now view them from the main panel.`, 'success');
+      this.updateStatus(`Saved "${name}" with ${newSet.count} flashcards successfully!`, 'success');
     } catch (error) {
       console.error('Error saving flashcards:', error);
       this.updateStatus(`Error saving flashcards: ${error.message}`, 'error');
     }
+  }
+
+  retryGeneration() {
+    this.clearOutput();
+    this.updateStatus('Ready to generate new flashcards. Click Generate when ready.', 'info');
+    this.elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   renderCodeBlock({ target, title, code, language }) {

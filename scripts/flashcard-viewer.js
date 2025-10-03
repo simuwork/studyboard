@@ -98,7 +98,10 @@ class FlashcardViewer {
     this.elements.setSelect.innerHTML = '<option value="">-- Select a set --</option>' +
       this.sets.map((set, index) => {
         const date = new Date(set.timestamp);
-        const label = `Set ${this.sets.length - index} - ${set.count} cards (${date.toLocaleDateString()} ${date.toLocaleTimeString()})`;
+        const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+        const label = set.name 
+          ? `${set.name} (${set.count} cards)`
+          : `Set ${this.sets.length - index} - ${set.count} cards (${dateStr})`;
         return `<option value="${set.id}">${label}</option>`;
       }).join('');
   }
@@ -266,7 +269,13 @@ class FlashcardViewer {
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = `flashcards-${new Date(this.currentSet.timestamp).toISOString().split('T')[0]}.json`;
+    
+    // Use custom name or date-based name
+    const filename = this.currentSet.name
+      ? `${this.currentSet.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`
+      : `flashcards-${new Date(this.currentSet.timestamp).toISOString().split('T')[0]}.json`;
+    
+    link.download = filename;
     link.click();
     
     URL.revokeObjectURL(url);
