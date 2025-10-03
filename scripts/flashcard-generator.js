@@ -924,7 +924,8 @@ class FlashcardGenerator {
       return;
     }
 
-    const defaultName = `Flashcard Set - ${new Date().toLocaleDateString()}`;
+    const now = new Date();
+    const defaultName = `Flashcard Set - ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
     const overlay = document.createElement('div');
     overlay.className = 'flashcard-save-dialog-overlay';
     overlay.innerHTML = `

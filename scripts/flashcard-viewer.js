@@ -11,7 +11,6 @@ class FlashcardViewer {
     this.elements = {
       setSelect: document.getElementById('flashcard-set-select'),
       deleteBtn: document.getElementById('delete-set-btn'),
-      exportBtn: document.getElementById('export-btn'),
       categoryFilters: document.getElementById('category-filters'),
       emptyState: document.getElementById('empty-state'),
       flashcardContainer: document.getElementById('flashcard-container'),
@@ -58,7 +57,6 @@ class FlashcardViewer {
     });
 
     this.elements.deleteBtn.addEventListener('click', () => this.deleteCurrentSet());
-    this.elements.exportBtn.addEventListener('click', () => this.exportCurrentSet());
 
     this.elements.viewer.addEventListener('click', () => this.toggleAnswer());
     this.elements.prevBtn.addEventListener('click', () => this.previousCard());
@@ -82,7 +80,6 @@ class FlashcardViewer {
       this.elements.emptyState.classList.remove('hidden');
       this.elements.flashcardContainer.classList.add('hidden');
       this.elements.deleteBtn.disabled = true;
-      this.elements.exportBtn.disabled = true;
       return;
     }
 
@@ -112,12 +109,10 @@ class FlashcardViewer {
     if (!this.currentSet) {
       this.elements.flashcardContainer.classList.add('hidden');
       this.elements.deleteBtn.disabled = true;
-      this.elements.exportBtn.disabled = true;
       return;
     }
 
     this.elements.deleteBtn.disabled = false;
-    this.elements.exportBtn.disabled = false;
     this.currentIndex = 0;
     this.showAnswer = false;
     this.answerLevel = 0;
@@ -258,27 +253,6 @@ class FlashcardViewer {
       console.error('Error deleting flashcard set:', error);
       alert('Error deleting flashcard set');
     }
-  }
-
-  exportCurrentSet() {
-    if (!this.currentSet) return;
-
-    const dataStr = JSON.stringify(this.currentSet.cards, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    
-    // Use custom name or date-based name
-    const filename = this.currentSet.name
-      ? `${this.currentSet.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`
-      : `flashcards-${new Date(this.currentSet.timestamp).toISOString().split('T')[0]}.json`;
-    
-    link.download = filename;
-    link.click();
-    
-    URL.revokeObjectURL(url);
   }
 }
 
