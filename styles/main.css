@@ -2,7 +2,7 @@
   --bg: #f5f7fb;
   --card: #ffffff;
   --border: #d9dfeb;
-  --primary: #1a73e8;
+  --primary: #3498db;
   --text: #1f2a44;
   --text-muted: #52607f;
   --danger: #c62828;
@@ -139,6 +139,16 @@ body {
   justify-content: flex-end;
 }
 
+.selection-actions__label {
+  align-self: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
 .selection-btn {
   border: 1px solid var(--border);
   background: #f6f8fc;
@@ -167,7 +177,7 @@ body {
 }
 
 .selection-btn.primary:hover:not(:disabled) {
-  background: #0f5ad4;
+  background: #2c81bf;
 }
 
 .flashcard-modal {
@@ -651,7 +661,7 @@ body {
 
 .file-badge--word {
   background: #e8f0fe;
-  color: #1a73e8;
+  color: #3498db;
 }
 
 .file-badge--slides {
