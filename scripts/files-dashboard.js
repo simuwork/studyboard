@@ -11,6 +11,7 @@ class FilesDashboard {
     this.selectedFiles = new Map(); // key -> { courseId, courseName, file }
 
     this.flashcardGenerator = null;
+    this.cheatSheetGenerator = null;
 
     this.init();
   }
@@ -91,7 +92,7 @@ class FilesDashboard {
 
       if (target.id === 'generate-study') {
         event.preventDefault();
-        this.showPlaceholder('Generate study content');
+        this.openCheatSheetGenerator();
       }
 
       if (target.id === 'generate-flashcards') {
@@ -359,6 +360,43 @@ class FilesDashboard {
       return instance;
     } catch (error) {
       console.error('Unable to initialize flashcard generator:', error);
+      return null;
+    }
+  }
+
+  openCheatSheetGenerator() {
+    const generator = this.ensureCheatSheetGenerator();
+    if (!generator) {
+      this.showPlaceholder('Cheat sheet generator');
+      return;
+    }
+
+    if (!this.selectedFiles.size) {
+      alert?.('Select at least one file to generate a cheat sheet.');
+      return;
+    }
+
+    generator.open();
+  }
+
+  ensureCheatSheetGenerator() {
+    if (this.cheatSheetGenerator) {
+      return this.cheatSheetGenerator;
+    }
+
+    if (!window.CheatSheetGenerator) {
+      console.warn('Cheat sheet generator script not available yet.');
+      return null;
+    }
+
+    try {
+      const instance = new CheatSheetGenerator({
+        getSelection: () => Array.from(this.selectedFiles.values())
+      });
+      this.cheatSheetGenerator = instance;
+      return instance;
+    } catch (error) {
+      console.error('Unable to initialize cheat sheet generator:', error);
       return null;
     }
   }

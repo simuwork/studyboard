@@ -946,3 +946,109 @@ body {
   text-transform: uppercase;
   margin-bottom: 8px;
 }
+
+/* Cheat Sheet Styling */
+.cheatsheet-content {
+  margin-top: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.cheatsheet-content__inner {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.cheatsheet-content__inner h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: var(--text);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.cheatsheet-content__inner h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 24px 0 12px 0;
+  color: var(--text);
+}
+
+.cheatsheet-content__inner h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+  color: var(--text);
+}
+
+.cheatsheet-content__inner p {
+  margin: 0 0 12px 0;
+}
+
+.cheatsheet-content__inner strong {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.cheatsheet-content__inner code {
+  background: #f4f6f8;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  font-size: 13px;
+  color: #c7254e;
+}
+
+.cheatsheet-content__inner pre {
+  background: #f8f9fa;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.cheatsheet-content__inner pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cheatsheet-content__inner ul {
+  margin: 8px 0;
+  padding-left: 24px;
+  list-style-type: disc;
+}
+
+.cheatsheet-content__inner li {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.cheatsheet-content__inner .latex-display {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  text-align: center;
+  margin: 16px 0;
+  padding: 12px;
+  background: #fafafa;
+  border-left: 3px solid var(--primary);
+  font-size: 15px;
+}
+
+.cheatsheet-content__inner .latex-inline {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  color: #5a189a;
+  font-size: 14px;
+}
