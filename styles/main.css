@@ -509,30 +509,54 @@ body {
 }
 
 .error {
+  position: relative;
   margin-top: 32px;
-  padding: 16px;
-  background: var(--card);
-  border: 1px solid var(--danger);
-  border-radius: 8px;
+  padding: 20px 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f7fbff;
+  border: 1px solid rgba(52, 152, 219, 0.22);
+  border-radius: 12px;
+  color: var(--text);
+}
+
+.error::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  width: 24px;
+  height: 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .error-title {
+  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 4px;
+  color: var(--text);
 }
 
 .error-message {
-  color: var(--text-muted);
-  margin-bottom: 12px;
+  color: rgba(31, 42, 68, 0.7);
+  line-height: 1.5;
 }
 
 .retry-btn {
-  border: none;
+  align-self: flex-start;
+  border: 1px solid transparent;
   background: var(--primary);
   color: #ffffff;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 8px 18px;
+  border-radius: 999px;
   cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: #2c81bf;
+  transform: translateY(-1px);
 }
 
 .course {
