@@ -277,7 +277,7 @@ class UIRenderer {
         <div class="selection-actions">
           <span class="selection-actions__label">Generate</span>
           <button id="generate-quiz" class="selection-btn" ${hasSelection ? '' : 'disabled'}>Quiz</button>
-          <button id="generate-study" class="selection-btn" ${hasSelection ? '' : 'disabled'}>Study Notes</button>
+          <button id="generate-study" class="selection-btn" ${hasSelection ? '' : 'disabled'}>Cheat Sheet</button>
           <button id="generate-flashcards" class="selection-btn primary" ${hasSelection ? '' : 'disabled'}>Flash Cards</button>
         </div>
       </div>
